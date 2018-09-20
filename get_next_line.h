@@ -6,7 +6,7 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/19 10:05:23 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/19 23:31:47 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/20 09:20:37 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 typedef struct	s_buff
 {
-	char	buf[BUFF_SIZE];
+	char	buf[BUFF_SIZE + 1];
 	char	*end;
 	char	*cur;
 }				t_buff;
