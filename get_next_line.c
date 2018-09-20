@@ -6,7 +6,7 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/19 10:07:28 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/19 23:30:21 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/19 23:56:29 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,12 +34,7 @@ int		get_next_line(int fd, char **line)
 		c.buf
 	};
 	char			*nl;
-	char			*tmp = NULL;
-	char			*tmptmp;
-	ssize_t			toread;
 	ssize_t			nread;
-	size_t			len;
-	ssize_t			totalread;
 
 	if ((nl = ft_strchr(c.cur, '\n')))
 	{
@@ -47,37 +42,21 @@ int		get_next_line(int fd, char **line)
 		c.cur = nl + 1;
 		return (1);
 	}
-	// no newline found
-	if (c.cur == c.buf) // buffer is empty
-		toread = BUFF_SIZE;
-	else // no newline
+	if (c.cur != c.buf) // buf is not empty
 	{
-		len = c.end - c.cur;
-		ft_memmove(c.buf, c.cur, len);
-		toread = BUFF_SIZE - len;
-		c.cur = c.buf + len;
+		*line = alloc_line(c.cur, c.buf + BUFF_SIZE);
 	}
-	totalread = 0;
-	while ((nread = read(fd, c.cur, toread)) > 0)
+	while ((nread = read(fd, c.buf, BUFF_SIZE)) > 0)
 	{
-		totalread += nread;
-		if((nl = ft_strchr(c.cur, '\n')))
+		if ((nl = ft_strchr(c.buf, '\n')))
 		{
 			*line = alloc_line(c.cur, nl);
 			c.cur = nl + 1;
-			return (1);
+			return (1);	
 		}
-		// buffer is full and has no newline
-		tmptmp = tmp;
-		tmp = ft_strjoin(tmp, c.buf);
-		free(tmptmp);
-		toread = BUFF_SIZE;
+		return (-1); // buff too small
 	}
 	if (nread == -1)
 		return (-1);
-	if (nread == 0)
-		return (0);
-	*line = alloc_line(tmp, tmp + totalread);
-	c.cur = nl + 1;
-	return (1);
+	return (0);
 }
