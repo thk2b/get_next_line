@@ -6,69 +6,78 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/19 10:07:28 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/19 12:42:29 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/19 23:30:21 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft/libft.h"
 #include "get_next_line.h"
 
-static char	*find_nl(const char *s)
+static char	*alloc_line(const char *start, const char *end)
 {
-	size_t	i;
-
-	i = 0;
-	if (s == NULL)
-		return (NULL);
-	while (s[i])
-		if (s[i] == '\n')
-			return ((char*)s + i);
-		else
-			i++;
-	if (s[i] == '\0')
-		return ((char*)s + i);
-	return (NULL);
-}
-
-static char *alloc_line(const char *start, const char *end)
-{
-	char	*l;
 	size_t	len;
+	char *s;
 
 	len = end - start;
-	if ((l = (char*)malloc(len * sizeof(char))) == NULL)
+	if((s = (char*)malloc(len * sizeof(char))) == NULL)
 		return (NULL);
-	return (ft_strncpy(l, start, len + 1));
-	return (l);
+	ft_memcpy(s, start, len);
+	s[len] = '\0';
+	return (s);
 }
 
 int		get_next_line(int fd, char **line)
 {
-	static char *buf; // current start of buffer
-	char		*el; // current end of line
-	char		*tmp;
-	char		*tmp1;
-	int			status;
-	
-	el = find_nl(buf);
-	if (el == NULL)
-		if ((buf = (char*)malloc(BUFF_SIZE * sizeof(char))) == NULL)
-			return (-1);
-	while (el == NULL && (status = read(fd, (void*)buf, BUFF_SIZE)) > 0)
-		if ((el = find_nl(buf)) == NULL)
-		{ // keep reading
-			tmp1 = tmp;
-			free(tmp);
-			tmp = ft_strjoin(tmp1, buf);
+	static t_buff	c = {
+		{0},
+		c.buf + BUFF_SIZE,
+		c.buf
+	};
+	char			*nl;
+	char			*tmp = NULL;
+	char			*tmptmp;
+	ssize_t			toread;
+	ssize_t			nread;
+	size_t			len;
+	ssize_t			totalread;
+
+	if ((nl = ft_strchr(c.cur, '\n')))
+	{
+		*line = alloc_line(c.cur, nl);
+		c.cur = nl + 1;
+		return (1);
+	}
+	// no newline found
+	if (c.cur == c.buf) // buffer is empty
+		toread = BUFF_SIZE;
+	else // no newline
+	{
+		len = c.end - c.cur;
+		ft_memmove(c.buf, c.cur, len);
+		toread = BUFF_SIZE - len;
+		c.cur = c.buf + len;
+	}
+	totalread = 0;
+	while ((nread = read(fd, c.cur, toread)) > 0)
+	{
+		totalread += nread;
+		if((nl = ft_strchr(c.cur, '\n')))
+		{
+			*line = alloc_line(c.cur, nl);
+			c.cur = nl + 1;
+			return (1);
 		}
-	if (status == -1)
+		// buffer is full and has no newline
+		tmptmp = tmp;
+		tmp = ft_strjoin(tmp, c.buf);
+		free(tmptmp);
+		toread = BUFF_SIZE;
+	}
+	if (nread == -1)
 		return (-1);
-	*line = alloc_line(buf, el);
-	buf = el;
-	if (*el == '\0')
-	{ // EOF
-		free(buf);
+	if (nread == 0)
 		return (0);
-	}	
+	*line = alloc_line(tmp, tmp + totalread);
+	c.cur = nl + 1;
 	return (1);
 }

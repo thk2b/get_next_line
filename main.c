@@ -8,5 +8,6 @@ int main(void)
 	int s;
 	while ((s = get_next_line(0, &line)) == 1)
 		puts(line);
+
 	printf("%s\n", strerror(s));
 }
