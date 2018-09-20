@@ -17,4 +17,5 @@ int main(int argc, char **argv)
 		puts(line);
 	if (s == -1)
 		printf("%s\n", strerror(errno));
+	return (s);
 }
