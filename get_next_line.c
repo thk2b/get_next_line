@@ -6,7 +6,7 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/19 10:07:28 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/20 20:20:26 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/20 20:39:05 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,11 @@ static int	copy_line(t_buff *buff, char *nl, char *tmp, char **line)
 		*nl = '\0';
 	if (tmp != NULL)
 	{
-		*line = ft_strjoin(tmp, buff->data);
+		ALLOC_CHECK(*line = ft_strjoin(tmp, buff->data));
 		free(tmp);
 	}
 	else
-		*line = ft_strdup(buff->cur);
+		ALLOC_CHECK(*line = ft_strdup(buff->cur));
 	if (nl == NULL)
 		return (0);
 	buff->cur = nl + 1;
@@ -46,14 +46,14 @@ static int	fill_buff(int fd, t_buff *buff, char **line)
 		tread += nread;
 		if ((nl = ft_strchr(buff->data, '\n')))
 			return (copy_line(buff, nl, tmp, line));
-		if (tmp == NULL)
-			tmp = ft_strdup(buff->data);
-		else
+		if (tmp != NULL)
 		{
 			tmp1 = tmp;
-			tmp = ft_strjoin(tmp, buff->data);
+			ALLOC_CHECK(tmp = ft_strjoin(tmp, buff->data));
 			free(tmp1);
 		}
+		else
+			ALLOC_CHECK(tmp = ft_strdup(buff->data));
 	}
 	if (tread && nread == 0)
 		*line = tmp;
@@ -71,7 +71,7 @@ int			get_next_line(int fd, char **line)
 		return (copy_line(&c, nl, NULL, line));
 	if (c.cur != c.data)
 	{
-		*line = ft_strdup(c.cur);
+		ALLOC_CHECK(*line = ft_strdup(c.cur));
 		c.cur = c.data;
 	}
 	else
