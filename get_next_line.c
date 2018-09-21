@@ -6,7 +6,7 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/19 10:07:28 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/20 20:39:05 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/20 22:16:10 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ static int	fill_buff(int fd, t_buff *buff, char **line)
 
 	tmp = *line;
 	tread = 0;
-	while ((nread = read(fd, buff->data, BUFF_SIZE)) > 0)
+	while ((nread = read(fd, buff->data, BUFF_SIZE - 1)) > 0)
 	{
 		tread += nread;
 		if ((nl = ft_strchr(buff->data, '\n')))
@@ -55,8 +55,7 @@ static int	fill_buff(int fd, t_buff *buff, char **line)
 		else
 			ALLOC_CHECK(tmp = ft_strdup(buff->data));
 	}
-	if (tread && nread == 0)
-		*line = tmp;
+	*line = tmp;
 	return (tread >= 1 ? 1 : nread);
 }
 
@@ -67,6 +66,8 @@ int			get_next_line(int fd, char **line)
 
 	if (fd < 0 || line == NULL || read(fd, c.data, 0) < 0)
 		return (-1);
+	if(c.cur == NULL)
+		return (0);
 	if ((nl = ft_strchr(c.cur, '\n')))
 		return (copy_line(&c, nl, NULL, line));
 	if (c.cur != c.data)
