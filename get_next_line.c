@@ -5,78 +5,33 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/09/19 10:07:28 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/20 22:37:51 by tkobb            ###   ########.fr       */
+/*   Created: 2018/09/20 22:41:11 by tkobb             #+#    #+#             */
+/*   Updated: 2018/09/20 22:48:21 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft/libft.h"
 #include "get_next_line.h"
-#include <printf.h>
+#include "libft/libft.h"
+#include <unistd.h>
 
-static int	copy_line(t_buff *buff, char *nl, char *tmp, char **line)
+int		get_next_line(int fd, char **line)
 {
-	if (nl)
-		*nl = '\0';
-	if (tmp != NULL)
+	static char	**buf = NULL;
+	char		tmp[BUFF_SIZE + 1];
+	size_t		nr;
+
+	if (buf && *buf)
 	{
-		ALLOC_CHECK(*line = ft_strjoin(tmp, buff->data));
-		free(tmp);
+		*line = *buf++;
+		return (1);
 	}
-	else
-		ALLOC_CHECK(*line = ft_strdup(buff->cur));
-	if (nl == NULL)
-		return (0);
-	buff->cur = nl + 1;
-	return (1);
-}
-
-static int	fill_buff(int fd, t_buff *buff, char **line)
-{
-	char	*tmp;
-	char	*tmp1;
-	char	*nl;
-	ssize_t	nread;
-	ssize_t	tread;
-
-	tmp = *line;
-	tread = 0;
-	while ((nread = read(fd, buff->data, BUFF_SIZE - 1)) > 0)
+	if ((nr = read(fd, tmp, BUFF_SIZE)) < 1)
 	{
-		tread += nread;
-		if ((nl = ft_strchr(buff->data, '\n')))
-			return (copy_line(buff, nl, tmp, line));
-		if (tmp != NULL)
-		{
-			tmp1 = tmp;
-			ALLOC_CHECK(tmp = ft_strjoin(tmp, buff->data));
-			free(tmp1);
-		}
-		else
-			ALLOC_CHECK(tmp = ft_strdup(buff->data));
-	}
-	*line = tmp;
-	return (tread >= 1 ? 1 : nread);
-}
-
-int			get_next_line(int fd, char **line)
-{
-	static t_buff	c = {{0}, c.data};
-	char			*nl;
-
-	if (fd < 0 || line == NULL || read(fd, c.data, 0) < 0)
+		if (nr == 0)
+			return (0);
 		return (-1);
-	if(c.cur == NULL)
-		return (0);
-	if ((nl = ft_strchr(c.cur, '\n')))
-		return (copy_line(&c, nl, NULL, line));
-	if (c.cur != c.data)
-	{
-		ALLOC_CHECK(*line = ft_strdup(c.cur));
-		c.cur = c.data;
 	}
-	else
-		*line = 0;
-	ft_bzero(c.data, BUFF_SIZE);
-	return (fill_buff(fd, &c, line));
+	buf = ft_strsplit(tmp, '\n');
+	*line = *buf++;
+	return (1);
 }
