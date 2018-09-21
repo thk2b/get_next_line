@@ -6,7 +6,7 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/19 10:05:23 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/20 21:51:32 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/21 13:59:28 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,11 @@
 # define GET_NEXT_LINE_H
 # define BUFF_SIZE 32
 # define ALLOC_CHECK(p) if ((p) == NULL) return (-1)
+# define MALLOC_BUFF (char*)malloc(BUFF_SIZE + 1)
 
 typedef struct	s_buff
 {
-	char	data[BUFF_SIZE + 1];
+	char	*start;
 	char	*cur;
 }				t_buff;
 
