@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 		if((fd = open(argv[1], O_RDONLY))== -1)
 		printf("%s\n", strerror(errno));
 	while ((s = get_next_line(fd, &line)) == 1)
-		puts(line);
+		printf("%s\n", line);
 	if (s == -1)
 		printf("%s\n", strerror(errno));
 	return (s);
