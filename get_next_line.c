@@ -6,14 +6,12 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/19 10:07:28 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/20 12:56:08 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/20 17:35:45 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft/libft.h"
 #include "get_next_line.h"
-#include <stdio.h>
-#include <assert.h>
 
 static int	copy_line(t_buff *buff, char *nl, char *tmp, char **line)
 {
@@ -24,7 +22,7 @@ static int	copy_line(t_buff *buff, char *nl, char *tmp, char **line)
 		free(tmp);
 	}
 	else
-		*line = ft_strdup(buff->data);
+		*line = ft_strdup(buff->cur);
 	buff->cur = nl + 1;
 	return (1);
 }
@@ -36,7 +34,7 @@ static int	fill_buff(int fd, t_buff *buff, char **line)
 	char	*nl;
 	ssize_t	nread;
 
-	tmp = NULL;
+	tmp = *line;
 	while ((nread = read(fd, buff->data, BUFF_SIZE)) > 0)
 	{
 		if ((nl = ft_strchr(buff->data, '\n')))
@@ -50,7 +48,7 @@ static int	fill_buff(int fd, t_buff *buff, char **line)
 			free(tmp1);
 		}
 	}
-	return (nread);
+	return (nread); // 1 - 0 - 1
 }
 
 int		get_next_line(int fd, char **line)
@@ -59,17 +57,14 @@ int		get_next_line(int fd, char **line)
 	char			*nl;
 
 	if ((nl = ft_strchr(c.cur, '\n')))
-	{
-		*nl = '\0';
-		*line = ft_strdup(c.cur);
-		c.cur = nl + 1;
-		return (1);
-	}
+		return (copy_line(&c, nl, NULL, line));
 	if (c.cur != c.data) // buf is not empty
 	{
 		*line = ft_strdup(c.cur);
 		c.cur = c.data;
 	}
-	ft_bzero(c.data, BUFF_SIZE);
+	else
+		*line = 0;
+	ft_bzero(c.data, BUFF_SIZE); // replace by null byte after read ?
 	return (fill_buff(fd, &c, line));
 }
