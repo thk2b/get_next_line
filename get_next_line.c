@@ -6,7 +6,7 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/19 10:07:28 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/20 17:35:45 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/20 17:57:04 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,23 +48,23 @@ static int	fill_buff(int fd, t_buff *buff, char **line)
 			free(tmp1);
 		}
 	}
-	return (nread); // 1 - 0 - 1
+	return (nread);
 }
 
-int		get_next_line(int fd, char **line)
+int			get_next_line(int fd, char **line)
 {
 	static t_buff	c = {{0}, c.data};
 	char			*nl;
 
 	if ((nl = ft_strchr(c.cur, '\n')))
 		return (copy_line(&c, nl, NULL, line));
-	if (c.cur != c.data) // buf is not empty
+	if (c.cur != c.data)
 	{
 		*line = ft_strdup(c.cur);
 		c.cur = c.data;
 	}
 	else
 		*line = 0;
-	ft_bzero(c.data, BUFF_SIZE); // replace by null byte after read ?
+	ft_bzero(c.data, BUFF_SIZE);
 	return (fill_buff(fd, &c, line));
 }
