@@ -6,7 +6,7 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/20 22:41:11 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/21 16:18:53 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/21 17:10:19 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,13 @@ static t_buff	*buff_new(void)
 
 static	int	copy_line(t_buff *data, char *end, char **dst)
 {
+	char	*del;
+
 	*end = '\0';
-	ALLOC_CHECK(*dst = ft_strjoin(*dst, ft_strsub(data->cur, 0, end - data->cur))); //leaks
+	del = *dst;
+	ALLOC_CHECK(*dst = ft_strjoin(*dst, data->cur));
+	free(del);
+	data->cur = end + 1;
 	return (1);
 }
 
@@ -36,15 +41,17 @@ static	int	copy_line(t_buff *data, char *end, char **dst)
 // {
 
 // }
-#include <printf.h>
+
 int		get_next_line(int fd, char **line)
 {
 	static t_buff	*data[256] = {NULL};
 	char			*nl;
 	ssize_t			nread;
-	ssize_t			pread;
 	int				status;
+	char			*del;
 
+	if (fd < 0 || line == NULL)
+		return (-1);
 	if (data[fd] == NULL) // no t_buff
 	{
 		ALLOC_CHECK(data[fd] = buff_new());
@@ -56,12 +63,15 @@ int		get_next_line(int fd, char **line)
 		ft_bzero(data[fd]->start, BUFF_SIZE + 1);
 	}
 	else if (data[fd]->cur == NULL) // reached OEF
+	{
+		free(data[fd]->start);
+		free(data[fd]);
 		return (0);
+	}
 	ALLOC_CHECK(*line = ft_strdup(""));
 	nread = 0;
 	while ((nl = ft_strchr(data[fd]->cur, '\n')) == NULL)
 	{
-		// printf("%zd", nread);
 		if (nread > 0 && nread != BUFF_SIZE) // didn't find a newline but cound not read whole buffer: reached EOF
 		{
 			status = copy_line(data[fd], data[fd]->start + BUFF_SIZE, line);
@@ -70,13 +80,14 @@ int		get_next_line(int fd, char **line)
 		}
 		if (data[fd]->cur != data[fd]->start || nread == BUFF_SIZE) // buffer is not empty and contains no line
 		{
-			*line = ft_strjoin(*line, data[fd]->cur); //leaks
+			del = *line;
+			*line = ft_strjoin(*line, data[fd]->cur);
+			free(del);
+			ft_bzero(data[fd]->start, BUFF_SIZE);
 		}
 		// buffer is empty
-		ft_bzero(data[fd]->cur, BUFF_SIZE);
-		pread = nread;
 		nread = read(fd, data[fd]->start, BUFF_SIZE);
-		if (pread == BUFF_SIZE && nread == 0) // previeously read a full buffer, but nothing now
+		if (nread == 0 && **line != '\0')
 		{
 			status = copy_line(data[fd], data[fd]->start + BUFF_SIZE, line);
 			data[fd]->cur = NULL;
