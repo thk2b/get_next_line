@@ -6,7 +6,7 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/20 22:41:11 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/21 19:18:40 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/21 20:26:40 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,17 +18,17 @@ static t_buff	*buff_new(void)
 {
 	t_buff	*b;
 
-	if((b = (t_buff*)malloc(sizeof(t_buff))) == NULL)
+	if ((b = (t_buff*)malloc(sizeof(t_buff))) == NULL)
 		return (NULL);
 	b->cur = NULL;
-	if((b->start = (char*)malloc(BUFF_SIZE + 1)) == NULL)
+	if ((b->start = (char*)malloc(BUFF_SIZE + 1)) == NULL)
 		return (NULL);
 	b->cur = b->start;
 	ft_bzero(b->start, BUFF_SIZE + 1);
 	return (b);
 }
 
-static	int	copy_line(t_buff *data, char *end, char **dst)
+static int		copy_line(t_buff *data, char *end, char **dst)
 {
 	char	*del;
 
@@ -40,60 +40,59 @@ static	int	copy_line(t_buff *data, char *end, char **dst)
 	return (1);
 }
 
-// static int	fill_buff(t_buff *data, char **dst)
-// {
+static int		end(t_buff *data, char **line)
+{
+	int	status;
 
-// }
+	status = copy_line(data, data->start + BUFF_SIZE, line);
+	data->cur = NULL;
+	return (status);
+}
 
-int		get_next_line(int fd, char **line)
+static int		fill_buff(int fd, t_buff *data, char **line)
+{
+	char	*nl;
+	char	*del;
+	size_t	nread;
+
+	nread = 0;
+	while ((nl = ft_strchr(data->cur, '\n')) == NULL)
+	{
+		if (nread > 0 && nread != BUFF_SIZE)
+			return (end(data, line));
+		if (data->cur != data->start || nread == BUFF_SIZE)
+		{
+			del = *line;
+			*line = ft_strjoin(*line, data->cur);
+			free(del);
+			ft_bzero(data->start, BUFF_SIZE);
+		}
+		nread = read(fd, data->start, BUFF_SIZE);
+		if (nread == 0 && **line != '\0')
+			return (end(data, line));
+		data->cur = data->start;
+		if (nread < 1)
+			return (nread);
+	}
+	return (copy_line(data, nl, line));
+}
+
+int				get_next_line(int fd, char **line)
 {
 	static t_buff	*data[256] = {NULL};
-	char			*nl;
-	ssize_t			nread;
-	int				status;
-	char			*del;
 
 	if (fd < 0 || line == NULL)
 		return (-1);
-	if (data[fd] == NULL) // no t_buff
+	if (data[fd] == NULL)
 	{
 		ALLOC_CHECK(data[fd] = buff_new());
 	}
-	else if (data[fd]->cur == NULL) // reached OEF
+	else if (data[fd]->cur == NULL)
 	{
 		free(data[fd]->start);
 		free(data[fd]);
 		return (0);
 	}
 	ALLOC_CHECK(*line = ft_strdup(""));
-	nread = 0;
-	while ((nl = ft_strchr(data[fd]->cur, '\n')) == NULL)
-	{
-		if (nread > 0 && nread != BUFF_SIZE) // didn't find a newline but cound not read whole buffer: reached EOF
-		{
-			status = copy_line(data[fd], data[fd]->start + BUFF_SIZE, line);
-			data[fd]->cur = NULL;
-			return (status);
-		}
-		if (data[fd]->cur != data[fd]->start || nread == BUFF_SIZE) // buffer is not empty and contains no line
-		{
-			del = *line;
-			*line = ft_strjoin(*line, data[fd]->cur);
-			free(del);
-			ft_bzero(data[fd]->start, BUFF_SIZE);
-		}
-		// buffer is empty
-		nread = read(fd, data[fd]->start, BUFF_SIZE);
-		if (nread == 0 && **line != '\0')
-		{
-			status = copy_line(data[fd], data[fd]->start + BUFF_SIZE, line);
-			data[fd]->cur = NULL;
-			return (status);
-		}
-		data[fd]->cur = data[fd]->start;
-		if (nread < 1)
-			return (nread);
-	}
-	// found a newline
-	return (copy_line(data[fd], nl, line));
+	return (fill_buff(fd, data[fd], line));
 }
