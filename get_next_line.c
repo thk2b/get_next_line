@@ -6,7 +6,7 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/20 22:41:11 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/21 20:26:40 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/21 20:30:32 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ int				get_next_line(int fd, char **line)
 {
 	static t_buff	*data[256] = {NULL};
 
-	if (fd < 0 || line == NULL)
+	if (fd < 0 || line == NULL || read(fd, NULL, 0) < 0)
 		return (-1);
 	if (data[fd] == NULL)
 	{
