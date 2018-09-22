@@ -6,7 +6,7 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/20 22:41:11 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/21 17:10:19 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/21 19:18:40 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,10 @@ static t_buff	*buff_new(void)
 	if((b = (t_buff*)malloc(sizeof(t_buff))) == NULL)
 		return (NULL);
 	b->cur = NULL;
-	b->start = NULL;
+	if((b->start = (char*)malloc(BUFF_SIZE + 1)) == NULL)
+		return (NULL);
+	b->cur = b->start;
+	ft_bzero(b->start, BUFF_SIZE + 1);
 	return (b);
 }
 
@@ -55,12 +58,6 @@ int		get_next_line(int fd, char **line)
 	if (data[fd] == NULL) // no t_buff
 	{
 		ALLOC_CHECK(data[fd] = buff_new());
-	}
-	if (data[fd]->start == NULL) // no t_buff data memory
-	{
-		ALLOC_CHECK(data[fd]->start = (char*)malloc(BUFF_SIZE + 1));
-		data[fd]->cur = data[fd]->start;
-		ft_bzero(data[fd]->start, BUFF_SIZE + 1);
 	}
 	else if (data[fd]->cur == NULL) // reached OEF
 	{
