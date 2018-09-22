@@ -6,13 +6,13 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/19 10:05:23 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/21 20:24:10 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/21 20:34:29 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
-# define BUFF_SIZE 1
+# define BUFF_SIZE 32
 # define ALLOC_CHECK(p) if ((p) == NULL) return (-1)
 
 typedef struct	s_buff
