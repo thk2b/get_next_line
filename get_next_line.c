@@ -6,7 +6,7 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/20 22:41:11 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/21 17:10:19 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/21 18:23:53 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ static	int	copy_line(t_buff *data, char *end, char **dst)
 // {
 
 // }
+
+
 
 int		get_next_line(int fd, char **line)
 {
@@ -84,8 +86,7 @@ int		get_next_line(int fd, char **line)
 			*line = ft_strjoin(*line, data[fd]->cur);
 			free(del);
 			ft_bzero(data[fd]->start, BUFF_SIZE);
-		}
-		// buffer is empty
+		} // buffer is empty
 		nread = read(fd, data[fd]->start, BUFF_SIZE);
 		if (nread == 0 && **line != '\0')
 		{
@@ -96,7 +97,6 @@ int		get_next_line(int fd, char **line)
 		data[fd]->cur = data[fd]->start;
 		if (nread < 1)
 			return (nread);
-	}
-	// found a newline
+	} // found a newline
 	return (copy_line(data[fd], nl, line));
 }
