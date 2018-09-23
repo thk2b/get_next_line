@@ -6,12 +6,12 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/20 22:41:11 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/22 20:11:57 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/22 22:05:13 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <libft.h>
+#include "libft.h"
 #include <unistd.h>
 
 static t_buff	*buff_new(void)
@@ -46,10 +46,12 @@ static int		end(t_buff *data, char **line)
 
 	status = copy_line(data, data->start + BUFF_SIZE, line);
 	data->cur = NULL;
+	free(data->start);
+	free(data);
 	return (status);
 }
 
-static int		fill_buff(int fd, t_buff *data, char **line)
+static int		next_line(int fd, t_buff *data, char **line)
 {
 	char	*nl;
 	char	*del;
@@ -79,7 +81,7 @@ static int		fill_buff(int fd, t_buff *data, char **line)
 
 int				get_next_line(int fd, char **line)
 {
-	static t_buff	*data[256] = {NULL};
+	static t_buff	*data[255] = {NULL};
 
 	if (fd < 0 || line == NULL || read(fd, NULL, 0) < 0)
 		return (-1);
@@ -88,11 +90,7 @@ int				get_next_line(int fd, char **line)
 		ALLOC_CHECK(data[fd] = buff_new());
 	}
 	else if (data[fd]->cur == NULL)
-	{
-		free(data[fd]->start);
-		free(data[fd]);
 		return (0);
-	}
 	ALLOC_CHECK(*line = ft_strdup(""));
-	return (fill_buff(fd, data[fd], line));
+	return (next_line(fd, data[fd], line));
 }
