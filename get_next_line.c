@@ -6,7 +6,7 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/20 22:41:11 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/29 22:39:47 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/29 23:08:06 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int		get_next_line(int fd, char **line)
 	{
 		*nl = '\0';
 		*line = data[fd];
-		data[fd] = nl + 1;
+		data[fd] = ft_strdup(nl + 1);
 		return (1);
 	}
 	tmp = data[fd];
@@ -51,10 +51,11 @@ int		get_next_line(int fd, char **line)
 		}
 		tmp1 = tmp;
 		tmp = ft_strjoin(tmp, buf);
-		// free(tmp1);
+		free(tmp1);
 	}
 	*nl = '\0';
-	*line = tmp;
-	data[fd] = nl + 1;
+	*line = ft_strdup(tmp);
+	data[fd] = ft_strdup(nl + 1);
+	free(tmp);
 	return (1);
 }
