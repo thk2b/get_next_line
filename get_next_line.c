@@ -6,12 +6,12 @@
 /*   By: tkobb <tkobb@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/20 22:41:11 by tkobb             #+#    #+#             */
-/*   Updated: 2018/09/30 00:07:16 by tkobb            ###   ########.fr       */
+/*   Updated: 2018/09/30 00:14:43 by tkobb            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include "libft/includes/libft.h"
+#include "libft.h"
 
 int		next_line(int fd, char **line, char **nl, char **tmp)
 {
